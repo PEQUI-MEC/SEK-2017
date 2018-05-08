@@ -46,22 +46,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.1687849261.44327374" name="/" resourcePath="src_folder">
-						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.424935289" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.debug" unusedChildren="">
-							<tool id="cdt.managedbuild.tool.gnu.archiver.base.975265203" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.1649914027"/>
-							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1333610579" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1245817055">
-								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1849694807" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
-							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1037518963" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.16343198">
-								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.504257242" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
-							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.931123753" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1386827884"/>
-							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1381729391" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.885336205"/>
-							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.937946821" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug.823392461">
-								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.163572492" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
-							</tool>
-						</toolChain>
-					</folderInfo>
 					<sourceEntries>
 						<entry excluding="src_folder" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src_folder"/>

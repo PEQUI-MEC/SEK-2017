@@ -48,8 +48,7 @@ void Controlador_robo::girar(int angulo_robo_graus){
 	this->angulo_robo_graus = angulo_robo_graus;
 	reset_motores();
 	estado = flag_aceleracao::girar;
-	usleep(1000000*0.3);
-	while(get_estado() == flag_aceleracao::girar);
+	usleep(1000*100);
 }
 
 
@@ -64,13 +63,8 @@ void Controlador_robo::alinhar(Sensor_cor_hsv *cor, direcao dir){
 
 
 	cout<<"alinhando:"<<cor_E<<";"<<cor_D<<endl;
-	if(qnt_cruzamentos >= total_cruzamentos_teste){
-		motorD->set_duty_cycle_sp(dir == direcao::traz?30:-30);
-		motorE->set_duty_cycle_sp(dir == direcao::traz?32:-32); // sentido inverso devido a reducao de engrenagem
-	}else {
-		motorD->set_duty_cycle_sp(dir == direcao::traz?20:-20);
-		motorE->set_duty_cycle_sp(dir == direcao::traz?22:-22); // sentido inverso devido a reducao de engrenagem
-	}
+	motorD->set_duty_cycle_sp(dir == direcao::traz?20:-20);
+	motorE->set_duty_cycle_sp(dir == direcao::traz?20:-20); // sentido inverso devido a reducao de engrenagem
 	motorE->run_direct();
 	motorD->run_direct();
 	bool motorE_parado = false,
@@ -213,7 +207,7 @@ void Controlador_robo::loop_controle_aceleracao(){
 
 		switch(estado){
 		case flag_aceleracao::ndAcel :
-			//usleep(1000*50);
+			usleep(1000*50);
 			break;
 
 		case flag_aceleracao::linha_reta :
@@ -266,14 +260,14 @@ void Controlador_robo::loop_controle_aceleracao(){
 			pwm_sp = 0;
 			pwm_retardada = 0.0;
 			pwm = 0;
-			//usleep(1000*300);
+			usleep(1000*300);
 			motorE->set_position_sp((angulo_robo_graus*raio_robo/raio_roda)/relacao_engrenagem);
 			motorD->set_position_sp(-(angulo_robo_graus*raio_robo/raio_roda)/relacao_engrenagem);
 			motorE->set_speed_sp(300);
 			motorD->set_speed_sp(300);
 			motorE->run_to_rel_pos();
 			motorD->run_to_rel_pos();
-			usleep(1000000*0.1);
+			usleep(1000*100);
 			while((motorE->speed() > 2 || motorE->speed() < -2) &&
 					estado == flag_aceleracao::girar){ }
 
@@ -281,7 +275,7 @@ void Controlador_robo::loop_controle_aceleracao(){
 			motorD->run_forever(); // antes de parar, caso contrario o robo fica louco
 			motorE->stop();
 			motorD->stop();
-			//usleep(1000*300);
+			usleep(1000*300);
 			if(estado == flag_aceleracao::girar) // se o giro terminar a thread fica ociosa
 				estado = flag_aceleracao::ndAcel; // se for interrompida, vai para a proxima acao
 			reset_motores();
@@ -290,7 +284,7 @@ void Controlador_robo::loop_controle_aceleracao(){
 		case flag_aceleracao::parar :
 			motorE->stop();
 			motorD->stop();
-			//usleep(1000000*0.1);
+			usleep(1000000*0.1);
 			reset_motores();
 			pwm_sp = 0;
 			pwm_retardada = 0.0;
@@ -480,6 +474,7 @@ void Controlador_robo::calibra_sensor_cor(Sensor_cor_hsv *sensor_cor) {
 		if(valores_D[2] < hsv.v) valores_D[2] = hsv.v;
 		if(valores_D[3] > hsv.v) valores_D[3] = hsv.v;
 	}
+
 	if(arena_pequi){
 		valores_E[0] += 0.02; // maximo_s_Branco_E
 		valores_E[1] -= 0.066; // minimo_V_Branco_E

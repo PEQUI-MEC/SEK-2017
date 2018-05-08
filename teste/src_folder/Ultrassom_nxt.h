@@ -9,7 +9,7 @@ using namespace std;
 
 class Ultrassom_nxt {
 public:
-	Ultrassom_nxt(string porta, int dist_min = 5, int dist_max = 25);
+	Ultrassom_nxt(string porta, int dist_min = 0, int dist_max = 35);
 	int le_centimetro();
 
 	static string INPUT_1;// Sensor port 1

@@ -7,9 +7,7 @@
 #include "ev3dev.h"
 #include <tuple>
 #include "M_arquivos.h"
-#include "Sensor_cor_hsv.h"
 #include "Const.h"
-#include <vector>
 
 
 using namespace std;
@@ -26,7 +24,7 @@ public:
 	void andar(int pwm, double distancia_metros);
 	void parar();
 	void girar(int angulo_robo_graus); // positivo anti-horario
-	void alinhar(Sensor_cor_hsv *cor, direcao direcao);
+
 
 	bool inicializar_thread_aceleracao();
 	bool finalizar_thread_aceleracao();
@@ -37,8 +35,7 @@ public:
 	double get_velocidade();
 	double get_pintao();
 	double get_pwm_sp();
-	void calibra_sensor_cor(Sensor_cor_hsv *sensor_cor);
-	void alinha_portal(Sensor_cor_hsv *sensor_cor);
+
 
 
 private:
@@ -57,13 +54,13 @@ private:
 
 
 	/*Variaveis caracteristica do robo*/
-	double fator_croda = 1.0173; // 1.0173 diminuir pende para direita 1.007 (pouquinho p direita
+	double fator_croda = 1.0173;//
 	double delay = 5.0;//Em miliseg
 	double aceleracao = 700.0;//Em pwm/seg
-	double raio_roda = 0.0267; // metros
-	double tamanho_do_pintao = 0.076; // 0.062 melhor
+	double raio_roda = 0.0267; // metros 0.02695 menor robo para antes
+	double tamanho_do_pintao = 0.065; // 0.062 melhor
 	double relacao_engrenagem = 0.5; // 2 volta motor equivale 1 voltas roda
-	double raio_robo = 0.0766; // largura entre os centros das rodas div por 2
+	double raio_robo = 0.074; //0.07434
 	double angulo_robo_graus = 0; // quanto o robo vai girar quando chamar o metodo girar
 	double distancia_linha_reta = 0; // distancia que  o robo ja andou
 	double distancia_absoluta = 0; // distancia absoluta que o robo andou

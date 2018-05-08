@@ -37,55 +37,6 @@ Sensor_cor_hsv::Sensor_cor_hsv(string sensor_port_E, string sensor_port_D,
 		limites_H_Verde_D[1] = 150;
 		limites_H_Amarelo_D[0] = 24; // verificar se esta dentro
 		limites_H_Amarelo_D[1] = 50;
-
-		fator_escalimetro_rgb_E[0] = 1.491228;
-		fator_escalimetro_rgb_E[1] = 1.356383;
-		fator_escalimetro_rgb_E[2] = 3.109756;
-		maximo_S_Branco_E = 0.066512;
-		minimo_V_Branco_E  = 0.661765;
-		maximo_V_Preto_E  = 0.171569;
-		minimo_V_Preto_E =0.073431;//0.063431;
-//		% 1.491228
-//		% 1.356383
-//		% 3.109756
-//		% 0.056512
-//		% 0.761765
-//		% 0.171569
-//		% 0.073431
-
-		fator_escalimetro_rgb_D[0] = 1.268657;
-		fator_escalimetro_rgb_D[1] = 1.020000;
-		fator_escalimetro_rgb_D[2] = 1.758621;
-		maximo_S_Branco_D = 0.093394;
-		minimo_V_Branco_D  = 0.677451;
-		maximo_V_Preto_D  = 0.187255;
-		minimo_V_Preto_D = 0.063431;//0.053431;
-
-//		% 1.268657
-//		% 1.020000
-//		% 1.758621
-//		% 0.083394
-//		% 0.777451
-//		% 0.187255
-//		% 0.073431
-	}else{
-		fator_escalimetro_rgb_D[0] = 1.159091;
-		fator_escalimetro_rgb_D[1] = 0.965909;
-		fator_escalimetro_rgb_D[2] = 1.634615;
-		maximo_S_Branco_D = 0.095794;// 0.065794;
-		minimo_V_Branco_D  = 0.623137; // 0.793137
-		maximo_V_Preto_D  = 0.179412;
-		minimo_V_Preto_D = 0.059275;// 0.081275;
-
-
-
-		fator_escalimetro_rgb_E[0] = 1.677632;
-		fator_escalimetro_rgb_E[1] = 1.545455;
-		fator_escalimetro_rgb_E[2] = 3.493151;
-		maximo_S_Branco_E =0.081494;// 0.051494;
-		minimo_V_Branco_E  = 0.751961; // 0.851961
-		maximo_V_Preto_E  = 0.183333;
-		minimo_V_Preto_E = 0.065196; //0.085196;
 	}
 }
 
@@ -107,7 +58,6 @@ Cor Sensor_cor_hsv::ler_cor_E() {
 			(double)rgb.r, (double)rgb.g, (double)rgb.b,
 			(double)hsv.h, (double)hsv.s, (double)hsv.v);
 
-	//cout << hsv.v;
 	if(hsv.v > minimo_V_Branco_E)
 		if( hsv.s < maximo_S_Branco_E) return Cor::branco;
 
@@ -147,7 +97,6 @@ Cor Sensor_cor_hsv::ler_cor_D() {
 			(double)rgb.r, (double)rgb.g, (double)rgb.b,
 			(double)hsv.h, (double)hsv.s, (double)hsv.v);
 
-	//cout << ";"<< hsv.v << endl;
 	if(hsv.v > minimo_V_Branco_D)
 		if( hsv.s < maximo_S_Branco_D) return Cor::branco;
 
@@ -187,7 +136,6 @@ void Sensor_cor_hsv::set_fatores_rgb(double *valores_E, double *valores_D) {
 }
 
 void Sensor_cor_hsv::set_maximos_minimos(double *maximos_E, double *maximos_D){
-	cout << endl << endl << endl << endl << "maxmin:" << endl;
 	maximo_S_Branco_E = maximos_E[0];
 	minimo_V_Branco_E  = maximos_E[1];
 	maximo_V_Preto_E  = maximos_E[2];
@@ -197,18 +145,6 @@ void Sensor_cor_hsv::set_maximos_minimos(double *maximos_E, double *maximos_D){
 	minimo_V_Branco_D  = maximos_D[1];
 	maximo_V_Preto_D  = maximos_D[2];
 	minimo_V_Preto_D = maximos_D[3];
-
-	for(int i = 0; i <= 3; i ++) {
-		while(!ev3dev::button::enter.process());
-		usleep(1000000*0.1);
-		while(!ev3dev::button::enter.process());
-		cout << maximos_E[i] << endl <<  maximos_D[i] << endl;
-	}
-	while(!ev3dev::button::enter.process());
-	usleep(1000000*0.1);
-	while(!ev3dev::button::enter.process());
-	cout << "acabou!" << endl;
-
 }
 
 
@@ -252,6 +188,9 @@ void Sensor_cor_hsv::fecha_arquivo(){
 		arquivo_D->fecha_arq();
 	}
 	string strr = "%maximos e minimos: \n% " +
+			to_string(fator_escalimetro_rgb_E[0])+ "\n% " +
+			to_string(fator_escalimetro_rgb_E[1])+ "\n% " +
+			to_string(fator_escalimetro_rgb_E[2])+ "\n% " +
 			to_string(maximo_S_Branco_E) + "\n% " +
 			to_string(minimo_V_Branco_E) + "\n% " +
 			to_string(maximo_V_Preto_E) + "\n% " +
@@ -259,6 +198,9 @@ void Sensor_cor_hsv::fecha_arquivo(){
 			"plot(x4);";
 	arquivo_E->string_arq(strr);
 	strr = "%maximos e minimos: \n% " +
+			to_string(fator_escalimetro_rgb_D[0])+ "\n% " +
+			to_string(fator_escalimetro_rgb_D[1])+ "\n% " +
+			to_string(fator_escalimetro_rgb_D[2])+ "\n% " +
 			to_string(maximo_S_Branco_D) + "\n% " +
 			to_string(minimo_V_Branco_D) + "\n% " +
 			to_string(maximo_V_Preto_D) + "\n% " +

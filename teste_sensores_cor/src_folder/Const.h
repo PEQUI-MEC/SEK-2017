@@ -6,12 +6,11 @@
 #include <thread>
 #include <string>
 #include "ev3dev.h"
-#include <unistd.h>
 
 
 using namespace std;
 
-enum estados_arena{faixa, leu_fora, leu_nda, intersec, rampa, terminado, atencao, captura, salva}; //usado na classe Mapeamento
+enum estados_arena{faixa, leu_fora, leu_nda, intersec, terminado, atencao, captura, salva}; //usado na classe Mapeamento
 enum direcao{ndDirecao, frente, direita, esquerda, traz};// usado na classe Mapeamento
 enum Cor{ndCor, preto, branco, vermelho, verde, amarelo, fora}; // cores possiveis
 enum flag_aceleracao{ndAcel, linha_reta, parar, girar}; // usado dentro do Controlador_robo
@@ -47,7 +46,5 @@ extern int sentido_navegacao;
  * */
 extern direcao_checkpoint cp; // intersecao
 extern int qnt_cruzamentos;
-const int total_cruzamentos_teste = 8;
 const bool arena_pequi = false; // testar o robo na nossa arena e na arena oficial
-const bool utilizar_arq = true; //utlizar arquivo de mapeamento ou nao
 #endif

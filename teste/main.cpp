@@ -3,215 +3,43 @@
 #include <chrono>
 #include <string>
 #include "M_arquivos.h"
-#include "ev3dev.h"
-#include "src_folder/Sensor_cor.h"
 #include "src_folder/Sensor_cor_hsv.h"
 #include "src_folder/Controlador_robo.h"
 #include "src_folder/Mapeamento.h"
+#include "src_folder/Resgate.h"
+#include "src_folder/Ultrassom.h"
 
+#include "src_folder/Garra.h"
 
 using namespace std;
 
-//enum estados{faixa, leu_nda, leu_fora, intersec};
 
 typedef chrono::high_resolution_clock Time;
 
 
-
-bool colorido(Sensor_cor_hsv cor, string lado){
-	if(lado == "esquerdo"){
-		if(cor.ler_cor_E() != Cor::branco && cor.ler_cor_E() != Cor::fora && cor.ler_cor_E() != Cor::ndCor)
-			return true;
-	}
-	else {
-		if(cor.ler_cor_D() != Cor::branco && cor.ler_cor_D() != Cor::fora && cor.ler_cor_D() != Cor::ndCor)
-			return true;
-	}
-	return false;
-}
-
-bool colorido(int cor, string lado){
-	if(lado == "esquerdo"){
-		if(cor != Cor::branco && cor != Cor::fora && cor != Cor::ndCor)
-			return true;
-	}
-	else {
-		if(cor != Cor::branco && cor != Cor::fora && cor != Cor::ndCor)
-			return true;
-	}
-	return false;
-}
-
-
-void teste_luana_alinhamento(){
-	Controlador_robo robot(true, "debug posicao direto no pwm.m");
-	Sensor_cor_hsv cor(ev3dev::INPUT_1, ev3dev::INPUT_2);
-
-	robot.calibra_sensor_cor(&cor);
-	robot.inicializar_thread_aceleracao();
-
-	cout << "Calibração terminada!" << endl;
-	usleep(2*1000000);
-	while(!ev3dev::button::enter.process());
-	usleep(0.3*1000000);
-	ev3dev::button::enter.process();
-
-	estados_Mapeamento estd;
-
-	int count_nda = 0;
-
-	int cor_E, cor_D;
-	double 	dist = 0, ang_robo = 0, posicao_inicial = 0, posicao_final = 0;
-
-
-	robot.andar(70);
-	estd = estados_Mapeamento::faixa;
-
-	while(!ev3dev::button::back.process()){
-		switch (estd){
-		case 0: //Caso estiver andando na faixa
-			robot.andar(70);
-			cout << "Estado: " << estd << endl;
-			if (cor.ler_cor_E() == Cor::ndCor || cor.ler_cor_D() == Cor::ndCor)
-				estd = estados_Mapeamento::leu_nda;
-			else if( (cor.ler_cor_E() != Cor::fora && cor.ler_cor_E() != Cor::ndCor && cor.ler_cor_E() != Cor::branco) ||
-					(cor.ler_cor_D() != Cor::fora && cor.ler_cor_D() != Cor::ndCor && cor.ler_cor_D() != Cor::branco) )
-				estd = estados_Mapeamento::intersec;
-			else if (cor.ler_cor_E() == Cor::fora || cor.ler_cor_D() == Cor::fora)
-				estd = estados_Mapeamento::leu_fora;
-
-
-			break;
-
-		case 1: //Caso ler nada
-			cout << "Estado: " << estd << endl;
-			if(cor.ler_cor_D() == Cor::ndCor || cor.ler_cor_E() == Cor::ndCor)
-				count_nda ++;
-
-			else{
-				count_nda = 0;
-
-				if (cor.ler_cor_E() == Cor::fora || cor.ler_cor_D() == Cor::fora)
-					estd = estados_Mapeamento::leu_fora;
-				else if( (cor.ler_cor_E() != Cor::fora && cor.ler_cor_E() != Cor::ndCor && cor.ler_cor_E() != Cor::branco) ||
-						(cor.ler_cor_D() != Cor::fora && cor.ler_cor_D() != Cor::ndCor && cor.ler_cor_D() != Cor::branco) )
-					estd = estados_Mapeamento::intersec;
-				else if(cor.ler_cor_E() == Cor::branco || cor.ler_cor_D() == Cor::branco)
-					estd = estados_Mapeamento::faixa;
-
-			}
-
-			if(count_nda >= 10){
-				cout<<"viu nda 10"<<endl;
-				robot.parar();
-				robot.andar(-100);
-				usleep(1000*800);
-				robot.girar(30);
-				robot.andar(70);
-			}
-
-			break;
-
-		case 2: //Caso ler fora
-			cout << "Estado: " << estd << endl;
-			if(cor.ler_cor_E() == Cor::fora && cor.ler_cor_D() == Cor::branco){
-				cout<<"saiu E"<<endl;
-				robot.parar();
-				robot.andar(-40);
-				usleep(1000*1000);
-				robot.girar(-10);
-				while(robot.get_estado() == flag_aceleracao::girar);
-				robot.andar(70);
-			}
-
-
-			else if(cor.ler_cor_D() == Cor::fora && cor.ler_cor_E() == Cor::branco){
-				cout<<"saiu D"<<endl;
-				robot.parar();
-				robot.andar(-40);
-				usleep(1000*1000);
-				robot.girar(10);
-				while(robot.get_estado() == flag_aceleracao::girar);
-				robot.andar(70);
-			}
-
-			estd = estados_Mapeamento::faixa;
-
-			break;
-
-		case 3: //Caso entrar em uma intersecção
-			cout << "Estado: " << estd << endl;
-			robot.andar(30);
-			usleep(1000*100);
-			cor_E = cor.ler_cor_E();
-			cor_D = cor.ler_cor_D();
-
-			if( (cor.ler_cor_E() != Cor::fora && cor.ler_cor_E() != Cor::ndCor && cor.ler_cor_E() != Cor::branco) ||
-					(cor.ler_cor_D() != Cor::fora && cor.ler_cor_D() != Cor::ndCor && cor.ler_cor_D() != Cor::branco) ) {
-				cout<<"viu cor"<<endl;
-				posicao_inicial = robot.get_distancia();
-				while(robot.get_distancia() < posicao_inicial + 0.04);
-				robot.parar();
-
-				if(cor.ler_cor_E() != cor_E){
-					cout<<"saiu E"<<endl;
-					robot.parar();
-					robot.andar(-40);
-					usleep(1000*2000);
-					robot.girar(-10);
-					while(robot.get_estado() == flag_aceleracao::girar);
-					robot.andar(70);
-				}
-
-				else if(cor.ler_cor_D() != cor_D){
-					cout<<"saiu D"<<endl;
-					robot.parar();
-					robot.andar(-40);
-					usleep(1000*2000);
-					robot.girar(10);
-					while(robot.get_estado() == flag_aceleracao::girar);
-					robot.andar(70);
-				}
-
-
-				else{ // esta dentro
-					robot.alinhar(&cor, direcao::traz);
-					robot.andar(50, 0.195);
-					robot.girar(90);
-					while(robot.get_estado() == flag_aceleracao::girar);
-					usleep(1000*800);
-					robot.andar(50, 0.19);
-					robot.alinhar(&cor, direcao::traz);
-					robot.andar(70);
-					while(cor.ler_cor_E() == cor_E || cor.ler_cor_D() == cor_D);
-					usleep(1000*500);
-
-					estd = estados_Mapeamento::faixa;
-				}
-			}
-
-			break;
-		}
-	}
-
-	robot.finalizar_thread_aceleracao();
-	usleep(0.2*1000000);
-}
-
-
-
 void teste_rogerio(){
-	Controlador_robo robot(true, "debug posicao direto no pwm.m"); // fator_croda = 1.005
-	//Sensor_cor cor(ev3dev::INPUT_1, ev3dev::INPUT_2);
-	Sensor_cor_hsv cor(ev3dev::INPUT_1, ev3dev::INPUT_2,true,"leitura_sensor_cor_hsv");
-	robot.calibra_sensor_cor(&cor);
+	Controlador_robo robot(false, "debug posicao direto no pwm.m");
+	Sensor_cor_hsv cor(ev3dev::INPUT_1, ev3dev::INPUT_2,false,"leitura_sensor_cor_hsv");
+	Ultrassom ultraE(ev3dev::INPUT_3);
+	Ultrassom ultraD(ev3dev::INPUT_4);
+	Mapeamento mapa(&robot, &cor);
+	Resgate resgate(&robot, &cor, &ultraE, &ultraD, ev3dev::OUTPUT_C, ev3dev::OUTPUT_D);
+
+
 	robot.inicializar_thread_aceleracao();
 	/*
 	 * teste da classe controlador_robo
 	 */
-	//robot.andar(50);
+	//	while(!ev3dev::button::enter.process());
+	//	usleep(1000000*0.1);
+	//	while(!ev3dev::button::enter.process());
+	//	robot.andar(50, 0.3);
+	//	cout << robot.get_distancia_absoluta() << ";" << robot.get_distancia_linha_reta() << endl;
+	//	usleep(1000000*5);
+	//	robot.andar(50, 0.3);
+	//	cout << robot.get_distancia_absoluta() << ";" << robot.get_distancia_linha_reta() << endl;
 	//	while(!ev3dev::button::enter.process())
-	//	cout<<robot.get_velocidade()<<endl;
+	//		cout<<robot.get_velocidade()<<endl;
 	//	usleep(1000*2000);
 	//	robot.girar(360*2);
 	//	usleep(1000*2000);
@@ -220,42 +48,101 @@ void teste_rogerio(){
 	//	robot.andar(-50);
 	//	usleep(1000*2000);
 	//	robot.girar(-360);
-	//	while(!ev3dev::button::enter.process()){}
+	//while(!ev3dev::button::enter.process());
 
 	/*
-	 * teste da classe sensor_cor
-	 * imprime o que o sensor esta lendo usando a classe
+	 * teste classe controlador_robo medir o tamanho do pintao
 	 */
-	//cor.calibra();
-	//	while(!ev3dev::button::up.process()){
-	//		while(!ev3dev::button::enter.process()){}
-	//		usleep(1000*800);
-	//		ev3dev::button::enter.process();
-	//		robot.andar(30);
-	//		while(!ev3dev::button::enter.process())
-	//			cout<<cor.ler_cor_E()<<";"<<cor.ler_cor_D()<<endl;
-	//		robot.parar();
-	//		usleep(1000*800);
-	//		ev3dev::button::enter.process();
-	//	}
+	//	while(!ev3dev::button::enter.process());
+	//	usleep(1000000*0.1);
+	//	while(!ev3dev::button::enter.process());
+	//	robot.andar(50);
+	//	while(cor.ler_cor_E() == Cor::branco);
+	//	robot.parar();
+	//	robot.andar(20, 0.058); // o tamanho do pintao eh 0.058
+	//	robot.andar(20, 0.15); // testando se ele vai parar no meio mesmo
+	//	robot.girar(-90);
+
+	/*
+	 * teste classe mapeamento com classe sensor cor hsv
+	 */
+	//robot.calibra_sensor_cor(&cor);
+	//cor.fecha_arquivo();
+	//robot.andar(-40);
+	cout << endl << endl << endl << "comecar?" << endl;
+		while(!ev3dev::button::enter.process());
+		usleep(1000000*0.1);
+		while(!ev3dev::button::enter.process());
+		cout << endl << endl << endl << endl << endl << endl;
+	//mapa.saidinha_ultima_intersec();
+	//cp.checkpoint_verde = direcao::direita;
+	//cp.checkpoint_amarelo = direcao::esquerda;
+
+	mapa.mapear();
+	//	cout <<"SAIU DO MAPEAMENTO JA"<<endl;
+	//	Garra cancela(ev3dev::OUTPUT_C, 48, "cancela");
+	//	cancela.abrir();
+	//	usleep(1000000);
+	//	cancela.fechar();
+	//	usleep(1000000);
+	//	robot.andar(-70);
+//		while(!ev3dev::button::enter.process());
+//		usleep(1000000*0.1);
+//		while(!ev3dev::button::enter.process());
+	//usleep(1000000*2);
+	//resgate.ir_para_final();
+	//cout << endl << endl << "PODE INICIAR CAPTURA"<< endl;
+	//robot.girar(360);
+	//qnt_cruzamentos = total_cruzamentos_teste;
+	resgate.resgatar();
+
+
+	/*
+	 * teste do alinhamento do portal
+	 */
+	//	robot.calibra_sensor_cor(&cor);
+	//	while(!ev3dev::button::enter.process());
+	//	usleep(1000000*0.1);
+	//	while(!ev3dev::button::enter.process());
+	//	robot.alinha_portal(&cor);
+
+
+	/*
+	 * teste classe Garra
+	 */
+	//	Garra garra(ev3dev::OUTPUT_D, 45);
+	//	while(!ev3dev::button::enter.process());
+	//	usleep(1000000*0.1);
+	//	while(!ev3dev::button::enter.process());
+	//	garra.abrir();
+	//	usleep(1000000*1);
+	//	garra.fechar();
+	//	usleep(1000000*1);
+	//	robot.andar(60);
+	//	while(!ev3dev::button::enter.process());
+	//	usleep(1000000*0.1);
+	//	while(!ev3dev::button::enter.process());
+	//	robot.parar();
 
 
 	/*
 	 * teste da classe sensor_cor_hsv
 	 * pega alguns valores e guarda no arquivo
 	 */
-	//	while(!ev3dev::button::up.process()){
-	while(!ev3dev::button::enter.process()){}
-	usleep(1000*800);
-	ev3dev::button::enter.process();
-	robot.andar(30);
-	while(!ev3dev::button::enter.process())
-		cout<<cor.ler_cor_E()<<";"<<cor.ler_cor_D()<<endl;
-	robot.parar();
-	usleep(1000*800);
-	ev3dev::button::enter.process();
-	//	}
-	cor.fecha_arquivo();
+	//	//robot.calibra_sensor_cor(&cor);
+	//			while(!ev3dev::button::up.pressed()){
+	//				while(!ev3dev::button::enter.pressed() && !ev3dev::button::up.pressed());
+	//				while(ev3dev::button::enter.pressed());
+	//				//robot.andar(30);
+	//				while(!ev3dev::button::enter.pressed() && !ev3dev::button::up.pressed()){
+	//					cout<<cor.ler_cor_E()<<";"<<cor.ler_cor_D()<<endl;
+	//					usleep(1000000*0.1);
+	//				}
+	//				robot.parar();
+	//				usleep(1000000*0.01);
+	//				while(ev3dev::button::enter.pressed());
+	//			}
+	//			cor.fecha_arquivo();
 
 	/*
 	 * teste da classe de cor
@@ -328,210 +215,247 @@ void teste_rogerio(){
 	//		usleep(1000*3000);
 	//	}
 
-	while(!ev3dev::button::enter.process()){}
+	while(!ev3dev::button::enter.process());
 	robot.parar();
 	usleep(1000*500);
 	robot.finalizar_thread_aceleracao();
 }
 
 
-void teste_rogerio_alinhamento(){
-	Controlador_robo robot(true, "debug posicao direto no pwm.m"); // fator_croda = 1.005
-	Sensor_cor_hsv cor(ev3dev::INPUT_1, ev3dev::INPUT_2);
+void competicao(){
+	Controlador_robo robot(false, "debug posicao direto no pwm.m");
+	Sensor_cor_hsv cor(ev3dev::INPUT_1, ev3dev::INPUT_2,false,"leitura_sensor_cor_hsv");
+	Ultrassom ultraE(ev3dev::INPUT_3);
+	Ultrassom ultraD(ev3dev::INPUT_4);
+	Mapeamento mapa(&robot, &cor);
+	Resgate resgate(&robot, &cor, &ultraE, &ultraD, ev3dev::OUTPUT_C, ev3dev::OUTPUT_D);
 
-	robot.calibra_sensor_cor(&cor);
+
 	robot.inicializar_thread_aceleracao();
 
-	double 	dist = 0,
-			ang_robo = 0,
-			posicao_inicial = 0,
-			posicao_final = 0;
+	mapa.mapear();
+	cout <<"SAIU DO MAPEAMENTO JA"<<endl;
 
-	int i = 0;
-	//cor.calibra();
-	while(!ev3dev::button::back.process()){
-		// verifica se o sensor esta vendo "nda" por um longo tempo
-		if(cor.ler_cor_D() == Cor::ndCor || cor.ler_cor_E() == Cor::ndCor){
-			i ++;
-		}else i = 0;
-		if(i >=10){
-			cout<<"viu nda 10"<<endl;
-			robot.parar();
-			robot.andar(-100);
-			usleep(1000*800);
-			robot.girar(30);
-		}
-		//***********termina verificacao da cor "nda"
+	//usleep(1000000*2);
+	//resgate.ir_para_final();
+	//cout << endl << endl << "PODE INICIAR CAPTURA"<< endl;
+	//qnt_cruzamentos = total_cruzamentos_teste;
+	resgate.resgatar();
+}
 
+void realinha(Controlador_robo *robo, direcao lado_saindo) {
+	double pwm_sp = robo->get_pwm_sp();
+	int grau = 12;
+	if(lado_saindo == direcao::esquerda)
+	{
+		cout<<"saiu E"<<endl;
+		robo->parar();
+		robo->andar(-80,0.08);
+		robo->girar(-grau);
+		while(robo->get_estado() == flag_aceleracao::girar);
+		//robo->andar(80, 0.07); // anda pra frente necessario?
+		robo->andar(pwm_sp);
+	}
 
-		robot.andar(70);
-		// forma de alinhamento calculando o angulo que o robo ta torto
-		// se o sensor E ver preto
-		//		if(cor.ler_cor_E() == Cor::preto){ // eh preto mesmo ou fora, verificar
-		//			posicao_inicial = robot.get_distancia();
-		//			robot.andar(30); // velocidade de atencao
-		//			cout<<"preto E?";
-		//			while(true){
-		//				if(cor.ler_cor_E() == Cor::fora){
-		//					cout<<"nao;"<<endl<<"saiu E"<<endl;
-		//					robot.parar();
-		//					robot.andar(-40);
-		//					usleep(1000*2000);
-		//					robot.girar(-35);
-		//					robot.andar(70);
-		//					break;
-		//				}else if(cor.ler_cor_D() == Cor::preto ||
-		//						cor.ler_cor_D() == Cor::fora){
-		//					posicao_final = robot.get_distancia();
-		//					cout<<"SIM!"<<endl;
-		//					while(robot.get_distancia() < posicao_final + 0.18){}
-		//					robot.parar();
-		//					dist = posicao_final - posicao_inicial;
-		//					ang_robo = atan2(dist, 0.17);
-		//					robot.girar(-90+ang_robo*180/3.141592);
-		//					while(robot.get_estado() == flag_aceleracao::girar){}
-		//					while(cor.ler_cor_E() != preto) robot.girar(-30);
-		//					while(cor.ler_cor_D() != preto) robot.girar(30);
-		//					robot.andar(70);
-		//					while(cor.ler_cor_D() == Cor::preto ||
-		//							cor.ler_cor_E() == Cor::preto){}
-		//					break;
-		//				}
-		//			}
-		//		}
-		//
-		//		// se o sensor D ver preto
-		//		if(cor.ler_cor_D() == Cor::preto){ // eh preto mesmo ou fora, verificar
-		//			posicao_inicial = robot.get_distancia();
-		//			cout<<"preto D?";
-		//			robot.andar(30); // velocidade de atencao
-		//			while(true){
-		//				if(cor.ler_cor_D() == Cor::fora){
-		//					cout<<"nao;"<<endl<<"saiu D"<<endl;
-		//					robot.parar();
-		//					robot.andar(-40);
-		//					usleep(1000*2000);
-		//					robot.girar(-35);
-		//					robot.andar(70);
-		//					break;
-		//				}else if(cor.ler_cor_E() == Cor::preto ||
-		//						cor.ler_cor_E() == Cor::fora){
-		//					posicao_final = robot.get_distancia();
-		//					cout<<"SIM!"<<endl;
-		//					while(robot.get_distancia() < posicao_final + 0.18){}
-		//					robot.parar();
-		//					dist = posicao_final - posicao_inicial;
-		//					ang_robo = atan2(dist, 0.17);
-		//					robot.girar(-90+ang_robo*180/3.141592);
-		//					while(robot.get_estado() == flag_aceleracao::girar){}
-		//					while(cor.ler_cor_E() != preto) robot.girar(-30);
-		//					while(cor.ler_cor_D() != preto) robot.girar(30);
-		//					robot.andar(70);
-		//					while(cor.ler_cor_D() == Cor::preto ||
-		//							cor.ler_cor_E() == Cor::preto){}
-		//					break;
-		//				}
-		//			}
-		//		}
+	else if(lado_saindo == direcao::direita)
+	{
+		cout<<"saiu D"<<endl;
+		robo->parar();
+		robo->andar(-80,0.08);
+		robo->girar(grau);
+		while(robo->get_estado() == flag_aceleracao::girar);
+		//robo->andar(80, 0.08); // anda pra frente necessario?
+		robo->andar(pwm_sp);
+	}
+	else{
+		cout << "realinha argumento errado" << endl;
+		robo->parar();
+		usleep(1000000*5);
+	}
+	usleep(1000000*0.3);
+}
 
-		// alinhar usando o metodo da classe robo
-		int cor_E = cor.ler_cor_E();
-		int cor_D = cor.ler_cor_D();
-		if( (cor_E != Cor::branco && cor_E != Cor::fora && cor_E != Cor::ndCor) ||
-				(cor_D != Cor::branco && cor_D != Cor::fora && cor_D != Cor::ndCor)){
-			robot.andar(30);
-			usleep(1000*100);
-			cor_E = cor.ler_cor_E();
-			cor_D = cor.ler_cor_D();
-			if( (cor_E != Cor::branco && cor_E != Cor::fora && cor_E != Cor::ndCor) ||
-					(cor_D != Cor::branco && cor_D != Cor::fora && cor_D != Cor::ndCor)){
-				cout<<"viu cor"<<endl;
-				posicao_inicial = robot.get_distancia();
-				while(robot.get_distancia() < posicao_inicial + 0.04){}
-				robot.parar();
+void go_to_plaza(Controlador_robo *robo, Sensor_cor_hsv *sensor, Ultrassom *ultraE, Garra *cancela) {
+	Cor cor_E = Cor::ndCor;
+	Cor	cor_D = Cor::ndCor;
+	int count_nwhite = 0;
 
-				if(cor.ler_cor_E() != cor_E){
-					cout<<"saiu E"<<endl;
-					robot.parar();
-					robot.andar(-40);
-					usleep(1000*2000);
-					robot.girar(-10);
-					while(robot.get_estado() == flag_aceleracao::girar){}
-					robot.andar(70);
-				}else if(cor.ler_cor_D() != cor_D){
-					cout<<"saiu D"<<endl;
-					robot.parar();
-					robot.andar(-40);
-					usleep(1000*2000);
-					robot.girar(10);
-					while(robot.get_estado() == flag_aceleracao::girar){}
-					robot.andar(70);
-				}
-				else{ // esta dentro
-					robot.alinhar(&cor, direcao::traz);
-					robot.andar(50, 0.195);
-					robot.girar(90);
-					while(robot.get_estado() == flag_aceleracao::girar){}
-					usleep(1000*800);
-					robot.andar(50, 0.19);
-					robot.alinhar(&cor, direcao::traz);
-					robot.andar(70);
-					while(cor.ler_cor_E() == cor_E ||
-							cor.ler_cor_D() == cor_D){}
-					usleep(1000*500);
-				}
-			}
-		}
+	robo->andar(70);
+	while(true){
+		cor_E = sensor->ler_cor_E();
+		cor_D = sensor->ler_cor_D();
 
+		cout << cor_E << "   " << cor_D << endl;
 
+		if(count_nwhite >= 10) break;
 
+		if(cor_E != Cor::branco && cor_D != Cor::branco)
+			count_nwhite++;
+		else count_nwhite = 0;
+		usleep(1000000*0.1);
+	}
+	robo->parar();
 
-		if(cor.ler_cor_E() == Cor::fora){
-			cout<<"saiu E"<<endl;
-			robot.parar();
-			robot.andar(-40);
-			usleep(1000*1000);
-			robot.girar(-10);
-			while(robot.get_estado() == flag_aceleracao::girar){}
-			robot.andar(70);
-		}
-		if(cor.ler_cor_D() == Cor::fora){
-			cout<<"saiu D"<<endl;
-			robot.parar();
-			robot.andar(-40);
-			usleep(1000*1000);
-			robot.girar(10);
-			while(robot.get_estado() == flag_aceleracao::girar){}
-			robot.andar(70);
+	robo->andar(70, 0.25);
+
+	cancela->abrir();
+
+	robo->andar(-70);
+	while(sensor->ler_cor_E() != Cor::branco || sensor->ler_cor_D() != Cor::branco);
+	usleep(100000);
+
+	robo->parar();
+	//cancela->fechar();
+
+	//robo.alinhar(&sensor, direcao::frente);
+
+	cancela->fechar();
+
+	robo->girar(-90);
+	while(robo->get_estado() == flag_aceleracao::girar);
+
+	robo->andar(70, 0.40);
+
+	robo->girar(-90);
+	while(robo->get_estado() == flag_aceleracao::girar);
+
+	robo->andar(70, 0.5);
+	robo->andar(-30, 0.05);
+
+	robo->girar(-90);
+	while(robo->get_estado() == flag_aceleracao::girar);
+
+	robo->andar(50);
+	while(ultraE->le_centimetro() < 30);
+	robo->parar();
+	usleep(1000000*0.5);
+	robo->girar(-90);
+	while(robo->get_estado() == flag_aceleracao::girar);
+
+	robo->andar(-50, 0.05);
+	while(true){
+		robo->andar(-50);
+		cor_E = sensor->ler_cor_E();
+		cor_D = sensor->ler_cor_D();
+
+		if(cor_E == Cor::fora)
+			realinha(robo, direcao::esquerda);
+		else if (cor_D == Cor::fora)
+			realinha(robo, direcao::direita);
+
+		if(cor_E == Cor::verde && cor_D == Cor::verde){
+			robo->alinhar(sensor, direcao::traz);
+			robo->andar(-50, 0.05);
+			robo->andar(-50);
+			while(sensor->ler_cor_E() != Cor::branco || sensor->ler_cor_D() != Cor::branco);
+			//usleep(1000000*0.5);
+			robo->girar(180);
+			robo->parar();
+			cout << "terminei!!!" << endl;
+			usleep(1000000*3);
+			break;
 		}
 	}
 }
 
-/*
-void teste_luana_mapeamento(){
-	Controlador_robo robot(true, "debug posicao direto no pwm.m");
-	Sensor_cor_hsv cor(ev3dev::INPUT_1, ev3dev::INPUT_2);
+void go_to_plaza2(Controlador_robo *robo, Sensor_cor_hsv *sensor, Ultrassom *ultraE){
+	Cor cor_E = Cor::ndCor;
+	Cor	cor_D = Cor::ndCor;
+	int count_nwhite = 0;
 
-	robot.calibra_sensor_cor(&cor);
-	//robot.inicializar_thread_aceleracao();
+	robo->andar(60);
+	while(true){
+		cor_E = sensor->ler_cor_E();
+		cor_D = sensor->ler_cor_D();
 
-	while(!ev3dev::button::enter.process());
-	usleep(0.3*1000000);
-	ev3dev::button::enter.process();
+		cout << cor_E << "   " << cor_D << endl;
 
-	Mapeamento map;
+		if(cor_E == Cor::verde && cor_D == Cor::verde){
+			usleep(1000000*0.1);
+			robo->alinhar(sensor, direcao::traz);
+		}
 
-	map.mapear(&robot, &cor);
+		if(count_nwhite >= 10) break;
+
+		if(cor_E != Cor::branco && cor_D != Cor::branco)
+			count_nwhite++;
+		else count_nwhite = 0;
+		usleep(1000000*0.1);
+	}
+	robo->parar();
+
+	robo->andar(40, 0.25);
+
+
+	robo->andar(-30);
+	while(sensor->ler_cor_E() != Cor::branco || sensor->ler_cor_D() != Cor::branco);
+	usleep(100000);
+
+	robo->parar();
+
+
+	robo->andar(-60);
+
+	while(true){
+		if((cor_E == Cor::vermelho && cor_D == Cor::vermelho) ||
+				(cor_E == Cor::verde && cor_D == Cor::verde))
+		{
+			//robo->alinhar(sensor, direcao::traz);
+			break;
+		}
+	}
+
+	robo->andar(-30);
+	while(sensor->ler_cor_E() != Cor::branco || sensor->ler_cor_D() != Cor::branco);
+	usleep(1000000*0.5);
+	robo->alinhar(sensor, direcao::traz);
+	robo->andar(-30);
+	usleep(1000000*4);
+
+	while(true){
+		if(sensor->ler_cor_E() == Cor::branco && sensor->ler_cor_D() == Cor::branco){
+			robo->parar();
+			robo->girar(180);
+			break;
+		}
+	}
+
+
 
 }
-*/
+
+
+void teste_rampa(){
+	Controlador_robo robo(false, "debug posicao direto no pwm.m");
+	Sensor_cor_hsv cor(ev3dev::INPUT_1, ev3dev::INPUT_2,false,"leitura_sensor_cor_hsv");
+	Ultrassom ultraE(ev3dev::INPUT_3);
+	Ultrassom ultraD(ev3dev::INPUT_4);
+	Mapeamento mapa(&robo, &cor);
+	//Resgate resgate(&robo, &cor, &ultraE, &ultraD);
+	Garra g(ev3dev::OUTPUT_C, 40, "cancela");
+
+
+
+	robo.inicializar_thread_aceleracao();
+
+	cout << "Teste rampa!!!" << endl;
+	while(!ev3dev::button::enter.process());
+
+	robo.andar(70);
+	usleep(1000000*2);
+	while(cor.ler_cor_E() != Cor::branco || cor.ler_cor_D() != Cor::branco);
+	//go_to_plaza(&robo, &cor, &ultraE );
+}
+
+
 
 int main(){
 	system("setfont Greek-TerminusBold20x10.psf.gz");
-	teste_luana_alinhamento();
-	//teste_rogerio();
-	//teste_rogerio_alinhamento();
-	//teste_luana_mapeamento();
+
+	teste_rogerio();
+	//teste_rampa();
+
+	ev3dev::button::back.pressed();
 
 	cout << "Teste finalizado. Bye!" << endl;
 	usleep (1000000);
