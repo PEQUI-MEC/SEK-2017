@@ -11,23 +11,22 @@
 
 using namespace std;
 
-enum estados_arena{faixa, leu_fora, leu_nda, intersec, rampa, terminado, atencao, captura, salva}; //usado na classe Mapeamento
-enum direcao{ndDirecao, frente, direita, esquerda, traz};// usado na classe Mapeamento
-enum Cor{ndCor, preto, branco, vermelho, verde, amarelo, fora}; // cores possiveis
-enum flag_aceleracao{ndAcel, linha_reta, parar, girar}; // usado dentro do Controlador_robo
+enum estados_arena {faixa, leu_fora, leu_nda, intersec, rampa, terminado, atencao, captura, salva}; // classe Mapeamento
+enum direcao {ndDirecao, frente, direita, esquerda, traz};// classe Mapeamento
+enum Cor {ndCor, preto, branco, vermelho, verde, amarelo, fora}; // cores possiveis
+enum flag_aceleracao {ndAcel, linha_reta, parar, girar}; // classe Controlador_robo
 
-struct RGB{ // utilizado na classe Sensor_cor_hsv
+// classe Sensor_cor_hsv
+struct RGB { 
 	int r = 0, g = 0, b = 0;
 };
 
-struct HSV{ // utilizado na classe Sensor_cor_hsv
+// classe Sensor_cor_hsv
+struct HSV { 
 	double h = 0, s = 0, v = 0;
 };
 
-
-
-
-// usado na classe MApeamento
+// classe Mapeamento
 struct direcao_checkpoint {
 	direcao checkpoint_vermelho;
 	direcao checkpoint_verde;
@@ -36,15 +35,17 @@ struct direcao_checkpoint {
 
 const bool automapear_3_checkpoint = true;
 
-/* == 1 se estiver indo do ponto de start para a rampa
+/* 
+ * == 1 se estiver indo do ponto de start para a rampa
  * == -1 se estiver indo da rampa para o ponto de start
  */
 extern int sentido_navegacao;
 
 
-/* Variaveis de mapeamento de intersecção e de bonecos
+/* 
+ * Variaveis de mapeamento de intersecção e de bonecos
  * inicializadas no inicio do arquivo Mapeamento.cpp
- * */
+ */
 extern direcao_checkpoint cp; // intersecao
 extern int qnt_cruzamentos;
 const int total_cruzamentos_teste = 8;

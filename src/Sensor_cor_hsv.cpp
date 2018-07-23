@@ -14,7 +14,7 @@ Sensor_cor_hsv::Sensor_cor_hsv(string sensor_port_E, string sensor_port_D,
  sensor_D(ev3dev::color_sensor(sensor_port_D)),
  debug(debug)
 {
-	if(debug){
+	if(debug) {
 		string s = "_E.m";
 		s = nome_arquivo + s;
 		arquivo_E = new M_arquivos(s, 7); // tempo, 3rgb, 3hsv
@@ -23,7 +23,7 @@ Sensor_cor_hsv::Sensor_cor_hsv(string sensor_port_E, string sensor_port_D,
 		arquivo_D = new M_arquivos(s, 7); // tempo, 3rgb, 3hsv
 	}
 
-	if(arena_pequi){
+	if(arena_pequi) {
 		limites_H_Vermelho_E[0] = 22;// verificar se esta fora
 		limites_H_Vermelho_E[1] = 340;
 		limites_H_Verde_E[0] = 110; // verificar se esta dentro
@@ -68,7 +68,7 @@ Sensor_cor_hsv::Sensor_cor_hsv(string sensor_port_E, string sensor_port_D,
 //		% 0.777451
 //		% 0.187255
 //		% 0.073431
-	}else{
+	} else {
 		fator_escalimetro_rgb_D[0] = 1.159091;
 		fator_escalimetro_rgb_D[1] = 0.965909;
 		fator_escalimetro_rgb_D[2] = 1.634615;
@@ -76,8 +76,6 @@ Sensor_cor_hsv::Sensor_cor_hsv(string sensor_port_E, string sensor_port_D,
 		minimo_V_Branco_D  = 0.623137; // 0.793137
 		maximo_V_Preto_D  = 0.179412;
 		minimo_V_Preto_D = 0.059275;// 0.081275;
-
-
 
 		fator_escalimetro_rgb_E[0] = 1.677632;
 		fator_escalimetro_rgb_E[1] = 1.545455;
@@ -108,24 +106,21 @@ Cor Sensor_cor_hsv::ler_cor_E() {
 			(double)hsv.h, (double)hsv.s, (double)hsv.v);
 
 	//cout << hsv.v;
-	if(hsv.v > minimo_V_Branco_E)
+	if(hsv.v > minimo_V_Branco_E) 
 		if( hsv.s < maximo_S_Branco_E) return Cor::branco;
 
-	if(arena_pequi){
+	if(arena_pequi) {
 		if(hsv.v < maximo_V_Preto_E)
-			if((125 - range_H_preto_fora < hsv.h) &&
-					(hsv.h < 125 + range_H_preto_fora)) return Cor::preto;
-			else
-				return Cor::fora;
-	}
-	else{
+			if((125 - range_H_preto_fora < hsv.h) && (hsv.h < 125 + range_H_preto_fora)) return Cor::preto;
+			else return Cor::fora;
+	} else {
 		if(hsv.v > minimo_V_Preto_E && hsv.v < maximo_V_Preto_E) return Cor::preto;
 		if(hsv.v < minimo_V_Preto_E) return Cor::fora;
 	}
 
 	if(hsv.h < limites_H_Vermelho_E[0] || hsv.h > limites_H_Vermelho_E[1]) return Cor::vermelho;
 	if(hsv.h > limites_H_Verde_E[0] && hsv.h < limites_H_Verde_E[1]) return Cor::verde;
-	if(hsv.h > limites_H_Amarelo_E[0] && hsv.h < limites_H_Amarelo_E[1])return Cor::amarelo;
+	if(hsv.h > limites_H_Amarelo_E[0] && hsv.h < limites_H_Amarelo_E[1]) return Cor::amarelo;
 	return Cor::ndCor;
 }
 
@@ -151,24 +146,22 @@ Cor Sensor_cor_hsv::ler_cor_D() {
 	if(hsv.v > minimo_V_Branco_D)
 		if( hsv.s < maximo_S_Branco_D) return Cor::branco;
 
-	if(arena_pequi){
+	if(arena_pequi) {
 		if(hsv.v < maximo_V_Preto_D)
-			if((104 - range_H_preto_fora < hsv.h) &&
-					(hsv.h < 104 + range_H_preto_fora)) return Cor::preto;
-			else
-				return Cor::fora;
-	}
-	else{
+			if((104 - range_H_preto_fora < hsv.h) && (hsv.h < 104 + range_H_preto_fora)) return Cor::preto;
+			else return Cor::fora;
+	} else {
 		if(hsv.v > minimo_V_Preto_D && hsv.v < maximo_V_Preto_D) return Cor::preto;
 		if(hsv.v < minimo_V_Preto_D) return Cor::fora;
 	}
 
 	if(hsv.h < limites_H_Vermelho_D[0] || hsv.h > limites_H_Vermelho_D[1]) return Cor::vermelho;
 	if(hsv.h > limites_H_Verde_D[0] && hsv.h < limites_H_Verde_D[1]) return Cor::verde;
-	if(hsv.h > limites_H_Amarelo_D[0] && hsv.h < limites_H_Amarelo_D[1])return Cor::amarelo;
+	if(hsv.h > limites_H_Amarelo_D[0] && hsv.h < limites_H_Amarelo_D[1]) return Cor::amarelo;
 
 	return Cor::ndCor;
 }
+
 
 void Sensor_cor_hsv::set_fatores_rgb(double *valores_E, double *valores_D) {
 	fator_escalimetro_rgb_E[0] = valores_E[0];
@@ -182,11 +175,11 @@ void Sensor_cor_hsv::set_fatores_rgb(double *valores_E, double *valores_D) {
 
 
 	if(debug)
-		cout << "fatores_r:" << endl
-		<< fator_escalimetro_rgb_E[0] << ";" << fator_escalimetro_rgb_D[0] << endl;
+		cout << "fatores_r:" << endl << fator_escalimetro_rgb_E[0] << ";" << fator_escalimetro_rgb_D[0] << endl;
 }
 
-void Sensor_cor_hsv::set_maximos_minimos(double *maximos_E, double *maximos_D){
+
+void Sensor_cor_hsv::set_maximos_minimos(double *maximos_E, double *maximos_D) {
 	cout << endl << endl << endl << endl << "maxmin:" << endl;
 	maximo_S_Branco_E = maximos_E[0];
 	minimo_V_Branco_E  = maximos_E[1];
@@ -204,6 +197,7 @@ void Sensor_cor_hsv::set_maximos_minimos(double *maximos_E, double *maximos_D){
 		while(!ev3dev::button::enter.process());
 		cout << maximos_E[i] << endl <<  maximos_D[i] << endl;
 	}
+
 	while(!ev3dev::button::enter.process());
 	usleep(1000000*0.1);
 	while(!ev3dev::button::enter.process());
@@ -212,7 +206,7 @@ void Sensor_cor_hsv::set_maximos_minimos(double *maximos_E, double *maximos_D){
 }
 
 
-HSV Sensor_cor_hsv::RGBtoHSV(RGB rgb){
+HSV Sensor_cor_hsv::RGBtoHSV(RGB rgb) {
 	HSV hsv;
 	double delta, min;
 
@@ -220,34 +214,26 @@ HSV Sensor_cor_hsv::RGBtoHSV(RGB rgb){
 	hsv.v = Max(Max(rgb.r, rgb.g), rgb.b);
 	delta = hsv.v - min;
 
-	if (hsv.v == 0.0)
-		hsv.s = 0;
-	else
-		hsv.s = delta / hsv.v;
+	if(hsv.v == 0.0) hsv.s = 0;
+	else hsv.s = delta / hsv.v;
 
-	if (hsv.s == 0)
-		hsv.h = 0.0;
-
-	else
-	{
-		if (rgb.r == hsv.v)
-			hsv.h = (rgb.g - rgb.b) / delta;
-		else if (rgb.g == hsv.v)
-			hsv.h = 2 + (rgb.b - rgb.r) / delta;
-		else if (rgb.b == hsv.v)
-			hsv.h = 4 + (rgb.r - rgb.g) / delta;
+	if (hsv.s == 0) hsv.h = 0.0;
+	else {
+		if (rgb.r == hsv.v) hsv.h = (rgb.g - rgb.b) / delta;
+		else if (rgb.g == hsv.v) hsv.h = 2 + (rgb.b - rgb.r) / delta;
+		else if (rgb.b == hsv.v) hsv.h = 4 + (rgb.r - rgb.g) / delta;
 
 		hsv.h *= 60;
 
-		if (hsv.h < 0.0)
-			hsv.h = hsv.h + 360;
+		if (hsv.h < 0.0) hsv.h = hsv.h + 360;
 	}
 	hsv.v = hsv.v/255;
 	return hsv;
 }
 
-void Sensor_cor_hsv::fecha_arquivo(){
-	if(debug){
+
+void Sensor_cor_hsv::fecha_arquivo() {
+	if(debug) {
 		arquivo_E->fecha_arq();
 		arquivo_D->fecha_arq();
 	}
@@ -268,9 +254,11 @@ void Sensor_cor_hsv::fecha_arquivo(){
 	debug = false;
 }
 
+
 ev3dev::color_sensor *Sensor_cor_hsv::get_sensor_E() {
 	return &sensor_E;
 }
+
 
 ev3dev::color_sensor *Sensor_cor_hsv::get_sensor_D() {
 	return &sensor_D;

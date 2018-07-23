@@ -24,8 +24,7 @@ using namespace std;
 
 class Sensor_cor_hsv {
 public:
-	Sensor_cor_hsv(string sensor_port_E, string sensor_port_D,
-			bool debug = false, string nome_arquivo = "");
+	Sensor_cor_hsv(string sensor_port_E, string sensor_port_D, bool debug = false, string nome_arquivo = "");
 	Cor ler_cor_E();
 	Cor ler_cor_D();
 	ev3dev::color_sensor *get_sensor_E();

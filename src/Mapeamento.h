@@ -1,10 +1,3 @@
-//TODO fazer fim_cidade (aguardando e mail do chair sobre local da marcacao na rampa)
-//TODO (testado uma vez)tirar verificacao do 3 checkpoint de forma que fique facil voltar
-/*TODO (TESTAR) verificar todos os lugares onde ele chama o metodo realinhar,
- * em algum lugar o robo viu cores diferentes com os sensores e entrou em um loop onde
- * ele ficava somente realinhando
- */
-
 #ifndef MAPEAMENTO_H_
 #define MAPEAMENTO_H_
 
@@ -28,7 +21,7 @@ public:
 	void mapear();
 
 private:
-	// objetos utilizadospara controlar o hardware
+	// objetos utilizados para controlar o hardware
 	Controlador_robo *robo;
 	Sensor_cor_hsv *sensor;
 

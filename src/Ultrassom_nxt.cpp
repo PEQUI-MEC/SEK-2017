@@ -14,13 +14,14 @@ Ultrassom_nxt::Ultrassom_nxt(string porta, int dist_min, int dist_max)
  dist_max(dist_max)
 {
 	string tmp;
-	for(int i = 0; i < 13; i ++){ // verifica em qual porta esta o sensor
+	for(int i = 0; i < 13; i ++) { // verifica em qual porta esta o sensor
 		tmp = local_sensores + "sensor" + std::to_string(i) + "/address";
 		ifstream is(tmp, ifstream::in);
-		if(is.is_open()){
+		if(is.is_open()) {
 			string t;
 			is >> t;
-			if(t == porta){
+
+			if(t == porta) {
 				cout<<"CONN: ";
 				conectado = true;
 				cout<<i<<" - "<<t<<endl;
@@ -32,15 +33,14 @@ Ultrassom_nxt::Ultrassom_nxt(string porta, int dist_min, int dist_max)
 }
 
 
-int Ultrassom_nxt::le_centimetro(){
+int Ultrassom_nxt::le_centimetro() {
 	ifstream is(arq_value0, ifstream::in);
-	if(conectado && is.is_open()){
+	if(conectado && is.is_open()) {
 		int leitura = 0;
 		is >> leitura;
 		is.close();
 		if(leitura > dist_max) leitura = dist_max;
 		if(leitura < dist_min) leitura = dist_min;
 		return leitura;
-	} else
-		return -1;
+	} else return -1;
 }

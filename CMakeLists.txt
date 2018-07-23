@@ -11,21 +11,21 @@ add_compile_options("-pthread")
 link_libraries("-pthread")
 
 # inclui o diretorio para busca dos sources
-include_directories(src_folder)
+include_directories(src)
 
 # seta a variavel uma lista com a biblioteca padrao
-set(LIBS src_folder/ev3dev.cpp)
+set(LIBS src/ev3dev.cpp)
 
 # adiciona a variavel todos os sources do nosso codigo
-list(APPEND LIBS  src_folder/M_arquivos.cpp)
-list(APPEND LIBS  src_folder/Sensor_cor_hsv.cpp)
-list(APPEND LIBS  src_folder/Ultrassom_nxt.cpp)
-list(APPEND LIBS  src_folder/Ultrassom.cpp)
-list(APPEND LIBS  src_folder/Controlador_robo.cpp)
-list(APPEND LIBS  src_folder/Mapeamento.cpp)
-list(APPEND LIBS  src_folder/Garra.cpp)
-list(APPEND LIBS  src_folder/Resgate.cpp)
+list(APPEND LIBS  src/M_arquivos.cpp)
+list(APPEND LIBS  src/Sensor_cor_hsv.cpp)
+list(APPEND LIBS  src/Ultrassom_nxt.cpp)
+list(APPEND LIBS  src/Ultrassom.cpp)
+list(APPEND LIBS  src/Controlador_robo.cpp)
+list(APPEND LIBS  src/Mapeamento.cpp)
+list(APPEND LIBS  src/Garra.cpp)
+list(APPEND LIBS  src/Resgate.cpp)
 
 
 # adiciona todos os sources e o main para serem compilados juntos
-add_executable(8binario  ${LIBS} main.cpp)
+add_executable(binario  ${LIBS} src/main.cpp)

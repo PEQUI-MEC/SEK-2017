@@ -5,7 +5,7 @@
 
 using namespace std;
 
-// a garra abre no sentido negativo, o limite eh -42
+// A garra abre no sentido negativo, o limite é -42
 class Garra {
 public:
 	Garra(string motor_port, int graus_abertura_do_motor, string tipo);

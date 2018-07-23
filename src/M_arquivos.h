@@ -27,7 +27,7 @@ public:
 
 
 	/*
-	 *  Metódo fecha_arq pega a lista gerada a cada chamada da função elemntos_arq
+	 *  Metódo fecha_arq pega a lista gerada a cada chamada da função elementos_arq
 	 *  e escreve em um arquivo.
 	 *  O arquivo estará no modelo:
 	 *
